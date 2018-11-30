@@ -7,15 +7,10 @@
 
 #include <boost/beast/websocket.hpp>
 #include <boost/asio/bind_executor.hpp>
-#include <boost/asio/strand.hpp>
 
 namespace {
     namespace asio = boost::asio;
     namespace ip = asio::ip;
-
-    void fail(boost::system::error_code ec, char const *what) {
-        std::cerr << what << ": " << ec.message() << "\n";
-    }
 }
 
 namespace http {
@@ -23,28 +18,6 @@ namespace http {
                                                                      ip::tcp::endpoint(ip::make_address_v4("0.0.0.0"),
                                                                                        port)),
                                                            socket_(ioc) {
-        boost::system::error_code ec;
-        ip::tcp::endpoint endpoint;
-
-        acceptor_.open(endpoint.protocol(), ec);
-        if (ec) {
-            fail(ec, "open");
-            return;
-        }
-
-        acceptor_.set_option(boost::asio::socket_base::reuse_address(true));
-
-        acceptor_.bind(endpoint, ec);
-        if (ec) {
-            fail(ec, "bind");
-            return;
-        }
-
-        acceptor_.listen(boost::asio::socket_base::max_listen_connections, ec);
-        if (ec) {
-            fail(ec, "listen");
-            return;
-        }
     }
 
     void Server::run() {
@@ -60,6 +33,7 @@ namespace http {
 
         acceptor_.async_accept(socket_, [this](boost::system::error_code ec) {
             if (!ec) {
+                std::cout << "Accepted and created session" << std::endl;
                 std::make_shared<Session>(std::move(socket_))->run();
             }
 

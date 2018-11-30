@@ -3,6 +3,7 @@ project(Detector)
 
 set(CMAKE_CXX_STANDARD 17)
 set(VCPKG_LIBRARY_LINKAGE static)
+#set(BOOST_ROOT "D:\\vcpkg\\installed\\x64-windows-static")
 
 if (MSVC)
     add_definitions(-D_WIN32_WINNT=0x600 -D_UNICODE -DUNICODE)
