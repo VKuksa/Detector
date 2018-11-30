@@ -26,16 +26,16 @@ int main(int argc, char **argv) {
 
     if (vm.count("port")) {
         std::cout << "Http server will run on "
-             << vm["port"].as<uint16_t>() << " port.\n";
+                  << vm["port"].as<uint16_t>() << " port.\n";
     }
 
-    try{
-    boost::asio::io_context ioc;
-    http::Server server(ioc, httpPort);
+    try {
+        boost::asio::io_context ioc;
+        http::Server server(ioc, httpPort);
 
-    server.run();
-    ioc.run();
-    } catch (std::exception &exc){
+        server.run();
+        ioc.run();
+    } catch (std::exception &exc) {
         std::cout << exc.what() << std::endl;
     }
     return EXIT_SUCCESS;
