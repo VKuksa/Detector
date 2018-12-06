@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
     notify(vm);
 
     if (vm.count("help")) {
-        std::cout << desc << "\n";
+        std::cout << "This application is the backend of Detector app" << "\n";
         return EXIT_FAILURE;
     }
 

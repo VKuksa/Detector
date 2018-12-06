@@ -28,9 +28,13 @@ namespace {
 }
 
 std::filesystem::path Environment::rootDir() {
-    return getExecPath().parent_path().parent_path();
+    return binaryDir().parent_path();
 }
 
 std::filesystem::path Environment::resourcesDir() {
     return rootDir() / std::string("resources");
+}
+
+std::filesystem::path Environment::binaryDir() {
+    return getExecPath().parent_path();
 }
