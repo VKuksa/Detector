@@ -8,8 +8,8 @@
 #include <boost/beast/http.hpp>
 #include <boost/beast/version.hpp>
 #include <boost/asio/bind_executor.hpp>
-#include <iostream>
 #include <thread>
+#include "../Environment.h"
 
 namespace {
     using namespace boost::beast::http;
@@ -44,30 +44,6 @@ namespace {
         if (iequals(ext, ".svg")) return "image/svg+xml";
         if (iequals(ext, ".svgz")) return "image/svg+xml";
         return "application/text";
-    }
-
-    std::string
-    path_cat(
-            boost::beast::string_view base,
-            boost::beast::string_view path) {
-        if (base.empty())
-            return path.to_string();
-        std::string result = base.to_string();
-#if BOOST_MSVC
-        char constexpr path_separator = '\\';
-        if (result.back() == path_separator)
-            result.resize(result.size() - 1);
-        result.append(path.data(), path.size());
-        for (auto &c : result)
-            if (c == '/')
-                c = path_separator;
-#else
-        char constexpr path_separator = '/';
-    if(result.back() == path_separator)
-        result.resize(result.size() - 1);
-    result.append(path.data(), path.size());
-#endif
-        return result;
     }
 
     template<
@@ -126,14 +102,12 @@ namespace {
             return send(bad_request("Illegal request-target"));
 
         // Build the path to the requested file
-        std::string path = path_cat(doc_root, req.target());
-        if (req.target().back() == '/')
-            path.append("index.html");
+        auto path = Environment::resourcesDir() / "index.html";
 
         // Attempt to open the file
         boost::beast::error_code ec;
         file_body::value_type body;
-        body.open(path.c_str(), boost::beast::file_mode::scan, ec);
+        body.open(path.string().c_str(), boost::beast::file_mode::scan, ec);
 
         // Handle the case where the file doesn't exist
         if (ec == boost::system::errc::no_such_file_or_directory)
@@ -150,7 +124,7 @@ namespace {
         if (req.method() == verb::head) {
             response<empty_body> res{status::ok, req.version()};
             res.set(field::server, BOOST_BEAST_VERSION_STRING);
-            res.set(field::content_type, mime_type(path));
+            res.set(field::content_type, mime_type(path.string()));
             res.content_length(size);
             res.keep_alive(req.keep_alive());
             return send(std::move(res));
@@ -162,7 +136,7 @@ namespace {
                 std::make_tuple(std::move(body)),
                 std::make_tuple(status::ok, req.version())};
         res.set(field::server, BOOST_BEAST_VERSION_STRING);
-        res.set(field::content_type, mime_type(path));
+        res.set(field::content_type, mime_type(path.string()));
         res.content_length(size);
         res.keep_alive(req.keep_alive());
         return send(std::move(res));

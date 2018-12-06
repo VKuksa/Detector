@@ -15,7 +15,7 @@ find_package(Boost 1.67 COMPONENTS log_setup log program_options REQUIRED)
 set(SRC
         src/main.cpp
         src/http/Server.cpp
-        src/http/Server.h src/http/Session.cpp src/http/Session.h)
+        src/http/Server.h src/http/Session.cpp src/http/Session.h src/Environment.cpp src/Environment.h)
 
 add_executable(detector ${SRC})
 target_include_directories(detector PRIVATE ${Boost_INCLUDE_DIRS})

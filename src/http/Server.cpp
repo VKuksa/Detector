@@ -6,7 +6,6 @@
 #include "Session.h"
 
 #include <boost/beast/websocket.hpp>
-#include <boost/asio/bind_executor.hpp>
 
 namespace {
     namespace asio = boost::asio;

@@ -16,8 +16,8 @@ int main(int argc, char **argv) {
             ("port, p", po::value<uint16_t>(&httpPort)->default_value(8888), "http server port");
 
     po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
-    po::notify(vm);
+    store(parse_command_line(argc, argv, desc), vm);
+    notify(vm);
 
     if (vm.count("help")) {
         std::cout << desc << "\n";
@@ -37,6 +37,7 @@ int main(int argc, char **argv) {
         ioc.run();
     } catch (std::exception &exc) {
         std::cout << exc.what() << std::endl;
+        return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
 }
