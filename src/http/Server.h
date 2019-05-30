@@ -1,9 +1,4 @@
-//
-// Created by vkuksa on 29.11.2018.
-//
-
-#ifndef DETECTOR_SERVER_H
-#define DETECTOR_SERVER_H
+#pragma once
 
 #include <boost/asio/ip/tcp.hpp>
 
@@ -21,5 +16,3 @@ namespace http {
         boost::asio::ip::tcp::socket socket_;
     };
 }
-
-#endif //DETECTOR_SERVER_H

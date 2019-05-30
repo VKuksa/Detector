@@ -3,7 +3,6 @@ project(Detector)
 
 set(CMAKE_CXX_STANDARD 17)
 set(VCPKG_LIBRARY_LINKAGE static)
-#set(BOOST_ROOT "D:\\vcpkg\\installed\\x64-windows-static")
 
 if (MSVC)
     add_definitions(-D_WIN32_WINNT=0x600 -D_UNICODE -DUNICODE)
@@ -15,7 +14,9 @@ find_package(Boost 1.67 COMPONENTS log_setup log program_options REQUIRED)
 set(SRC
         src/main.cpp
         src/http/Server.cpp
-        src/http/Server.h src/http/Session.cpp src/http/Session.h src/Environment.cpp src/Environment.h)
+        src/http/Session.cpp 
+		src/Environment.cpp 
+		)
 
 add_executable(detector ${SRC})
 target_include_directories(detector PRIVATE ${Boost_INCLUDE_DIRS})

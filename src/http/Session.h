@@ -1,16 +1,10 @@
-//
-// Created by vkuksa on 29.11.2018.
-//
-
-#ifndef DETECTOR_SESSION_H
-#define DETECTOR_SESSION_H
+#pragma once
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
-#include <boost/beast/http/string_body.hpp>
 #include <boost/beast/core.hpp>
+#include <boost/beast/http/string_body.hpp>
 #include <memory>
-
 
 namespace http {
     class Session : public std::enable_shared_from_this<Session> {
@@ -23,18 +17,15 @@ namespace http {
         struct send_lambda {
             Session &self_;
 
-            explicit
-            send_lambda(Session &self)
-                    : self_(self) {
-            }
+            explicit send_lambda(Session &self)
+                : self_(self) {}
 
             template<bool isRequest, class Body, class Fields>
             void operator()(boost::beast::http::message<isRequest, Body, Fields> &&msg) const {
                 // The lifetime of the message has to extend
                 // for the duration of the async operation so
                 // we use a shared_ptr to manage it.
-                auto sp = std::make_shared<
-                        boost::beast::http::message<isRequest, Body, Fields>>(std::move(msg));
+                auto sp = std::make_shared<boost::beast::http::message<isRequest, Body, Fields>>(std::move(msg));
 
                 // Store a type-erased version of the shared
                 // pointer in the class to keep it alive.
@@ -42,16 +33,10 @@ namespace http {
 
                 // Write the response
                 boost::beast::http::async_write(
-                        self_.socket_,
-                        *sp,
-                        boost::asio::bind_executor(
-                                self_.strand_,
-                                std::bind(
-                                        &Session::onWrite,
-                                        self_.shared_from_this(),
-                                        std::placeholders::_1,
-                                        std::placeholders::_2,
-                                        sp->need_eof())));
+                    self_.socket_,
+                    *sp,
+                    boost::asio::bind_executor(
+                        self_.strand_, std::bind(&Session::onWrite, self_.shared_from_this(), std::placeholders::_1, std::placeholders::_2, sp->need_eof())));
             }
         };
 
@@ -71,5 +56,3 @@ namespace http {
         send_lambda lambda_;
     };
 }
-
-#endif //DETECTOR_SESSION_H

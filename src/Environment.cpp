@@ -1,13 +1,9 @@
-//
-// Created by vkuksa on 06.12.2018.
-//
-
 #include "Environment.h"
+
 #include <windows.h>
 
-
 namespace {
-    std::filesystem::path getExecPath(){
+    std::filesystem::path getExecPath() {
 #ifdef _WIN32
         std::vector<TCHAR> buffer;
         DWORD copied;
