@@ -139,8 +139,7 @@ namespace {
 namespace http {
     Session::Session(boost::asio::ip::tcp::socket socket)
         : socket_(std::move(socket))
-        , strand_(socket_.get_executor())
-        , lambda_(*this) {}
+        , strand_(socket_.get_executor()) {}
 
     void Session::run() {
         doRead();
@@ -159,7 +158,18 @@ namespace http {
         if (ec == error::end_of_stream)
             return doClose();
 
-        handle_request(lambda_, std::move(req_)); //TODO refactor request handling
+        handle_request(
+            [&, this](auto && msg) {
+                auto sp = std::make_shared<std::remove_reference<decltype(msg)>::type>(std::forward<decltype(msg)>(msg));
+                this->res_ = sp;
+
+                boost::beast::http::async_write(
+                    socket_,
+                    *sp,
+                    boost::asio::bind_executor(strand_,
+                                               std::bind(&Session::onWrite, shared_from_this(), std::placeholders::_1, std::placeholders::_2, sp->need_eof())));
+            },
+            std::move(req_));
     }
 
     void Session::onWrite(boost::system::error_code ec, std::size_t bytes_transferred, bool close) {
