@@ -16,6 +16,7 @@ set(SRC
         src/http/Server.cpp
         src/http/Session.cpp 
 		src/Environment.cpp 
+		src/logger/Logger.cpp
 		)
 
 add_executable(detector ${SRC})

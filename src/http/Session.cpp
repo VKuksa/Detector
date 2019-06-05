@@ -159,7 +159,7 @@ namespace http {
             return doClose();
 
         handle_request(
-            [&, this](auto && msg) {
+            [this](auto && msg) {
                 auto sp = std::make_shared<std::remove_reference<decltype(msg)>::type>(std::forward<decltype(msg)>(msg));
                 this->res_ = sp;
 
