@@ -26,7 +26,9 @@ int main(int argc, char ** argv) {
     }
 
     try {
-        Logger::init(std::cout); //TODO
+        logging::Logger::init();
+
+        logging::Logger::INFO() << "Application started";
 
         boost::asio::io_context ioc;
         http::Server server(ioc, httpPort);

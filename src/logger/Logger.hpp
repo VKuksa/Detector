@@ -1,57 +1,69 @@
 #pragma once
-#include <chrono>
 #include <ostream>
 #include <sstream>
 
-enum Severity { trace, info, warning, error, critical, none };
+namespace logging {
+    enum Severity { trace, debug, info, warning, error, critical };
 
-class Logger {
-public:
-    template<Severity severity>
-    class Record {
+    class Logger {
     public:
-        Record(Record const &) = delete;
+        class Record {
+        public:
+            friend Logger;
 
-        Record & operator=(Record const &) = delete;
+            Record(Record const &) = delete;
+            Record & operator=(Record const &) = delete;
 
-        std::ostringstream & create() {
-            buffer_ << "- " << std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-            buffer_ << " <" << ToString(level) << ">: "; //TODO
-            return buffer_;
-        }
+            Record(Record &&) = default;
+            Record & operator=(Record &&) = default;
 
-        ~Record() {
-            if (severity >= threshold_) {
-                buffer_ << std::endl;
-                *output_ << buffer_.str().c_str();
-                output_->flush();
-            }
-        }
+            ~Record();
 
-    private:
-        Record(Record &&) = default;
+            template<class T>
+            Record & operator<<(const T & t);
 
-        Record & operator=(Record &&) = default;
+        private:
+            Record(Severity severity);
 
-        std::ostringstream buffer_;
+            inline static Severity threshold_{trace};
+
+            inline static bool verboseLogging_{false};
+
+            Severity severity_;
+
+            std::unique_ptr<std::ostringstream> stream_;
+        };
+
+        enum class Mode { Ordinary, Verbose };
+
+        Logger(Logger const &) = delete;
+        Logger(Logger &&) = delete;
+
+        Logger & operator=(Logger const &) = delete;
+        Logger & operator=(Logger &&) = delete;
+
+        static Logger & instance();
+
+        static void init();
+
+        static Record TRACE();
+
+        static Record DEBUG();
+
+        static Record INFO();
+
+        static Record WARN();
+
+        static Record ERR();
+
+        static Record CRITICAL();
+
+    protected:
+        Logger() = default;
+        ~Logger() = default;
+
+        std::unique_ptr<std::ostream> output_;
     };
+}
 
-    Logger(Logger const &) = delete;
-    Logger(Logger &&) = delete;
-
-    Logger & operator=(Logger const &) = delete;
-    Logger & operator=(Logger &&) = delete;
-
-    template<typename StreamType>
-    static void init(StreamType stream);
-
-    template<typename Severity>
-    auto log() const {
-        return Record<Severity>();
-    }
-
-private:
-    static std::unique_ptr<std::ostream> output_;
-
-    inline static Severity threshold_{none};
-};
+#include "Logger.ipp"
